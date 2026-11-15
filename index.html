@@ -264,7 +264,7 @@ main{padding-bottom:150px}
     <button class="ib" id="bell" aria-label="Thông báo"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></button>
     <button class="pill" id="pill" aria-label="Mở giỏ hàng"><small>Tổng</small><span id="tot">0đ</span><span class="c" id="cnt">0</span></button>
     <button class="ib" id="sndBtn" aria-label="Tắt tiếng"><svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4 4 0 0 1 0 6"/><path class="w2" d="M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="mx" d="m16 9.5 5 5m0-5-5 5"/></svg></button>
-    <button class="ib" id="user" aria-label="Đơn đã bấm mua" title="Đơn đã bấm mua"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
+    <button class="ib" id="user" aria-label="Đăng ký / đăng nhập Droppii" title="Đăng ký / đăng nhập Droppii"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
     <button class="ib" id="menuBtn" aria-label="Ngành hàng"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </header>
@@ -794,6 +794,8 @@ function seller() { const nb = SALE.nguoi_ban || {}; return nb[refCode()] || nb[
 function shareLink(it) { const sl = seller(); return (sl && sl.link_chia_se && sl.link_chia_se[uuidOf(it)]) || ''; }
 function droppiiLink(it) { return shareLink(it) || it.l || ''; }
 // link mời đăng ký Droppii của người giới thiệu (CTV hoặc chủ cửa hàng)
+// nút tài khoản: link affiliate của người bán (nguoi_ban[..].link_tai_khoan), không có thì dùng link mời đăng ký
+function accountLink() { const sl = seller(); return (sl && sl.link_tai_khoan) || registerLink(); }
 function registerLink() { const ma = refCode(); return SALE.link_dang_ky && ma ? SALE.link_dang_ky.replace(/\{ma\}/g, encodeURIComponent(ma)) : ''; }
 
 /* ---------- đơn đã bấm mua (bước 1: lưu trên máy khách; bước 2 sẽ đồng bộ qua đăng nhập Google) ---------- */
@@ -809,7 +811,7 @@ function openOrders() {
   const list = store.get(ORD_KEY, []), box = $('#mbox');
   box.className = 'mbox ck';
   box.innerHTML = `<div class="ckh"><h3>Đơn đã bấm mua</h3><button class="x" id="ckx" aria-label="Đóng">✕</button></div>
-    <p class="ckp">Danh sách các lần bạn chuyển sang Droppii để mua, lưu trên trình duyệt này. Huỷ hoặc theo dõi đơn làm trên app/web <a href="https://droppii.vn" target="_blank" rel="noopener">Droppii</a>.</p>
+    <p class="ckp">Danh sách các lần bạn chuyển sang Droppii để mua, lưu trên trình duyệt này. Huỷ hoặc theo dõi đơn làm trên app/web <a href="${esc(accountLink() || 'https://droppii.vn')}" target="_blank" rel="noopener">Droppii</a>.</p>
     <div class="cklist">${list.length ? list.map(o => `<div class="od" data-id="${o.id}">
       <div class="odh"><b>${o.id}</b><span>${new Date(o.t).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</span><span class="odt">${fmt(o.total)}</span></div>
       ${o.items.map(x => { const i = UIDX.get(x.u), it = i !== undefined ? ITEMS[i] : null; return `<div class="odi">
@@ -873,7 +875,7 @@ function placeOrder() {
     </div>`; }).join('')}</div>
     <div class="ckf">
       <div class="ln t"><span>Tạm tính (${n} món)</span><span>${fmt(t)}</span></div>
-      <p class="note">Giá cuối cùng, phí giao hàng và khuyến mãi theo Droppii.${registerLink() ? ` Chưa có tài khoản Droppii? <a href="${esc(registerLink())}" target="_blank" rel="noopener">Đăng ký qua cửa hàng</a>.` : ''}</p>
+      <p class="note">Giá cuối cùng, phí giao hàng và khuyến mãi theo Droppii.${accountLink() ? ` Chưa có tài khoản Droppii? <a href="${esc(accountLink())}" target="_blank" rel="noopener">Đăng ký qua cửa hàng</a>.` : ''}</p>
       <div class="ckbtns"><button class="sec" id="ckCopy">Sao chép danh sách</button><button class="order" id="ckClear">Xong, làm trống giỏ</button></div>
     </div>`;
   $('#modal').classList.add('show');
@@ -964,7 +966,7 @@ $('#bell').onclick = e => { e.stopPropagation(); openPop('#bellPop', e.currentTa
 const sndUi = () => { const b = $('#sndBtn'); b.classList.toggle('off', !SFX.on); b.setAttribute('aria-label', SFX.on ? 'Tắt tiếng' : 'Bật tiếng'); };
 $('#sndBtn').onclick = () => { toast(SFX.toggle() ? 'Đã bật âm thanh' : 'Đã tắt âm thanh'); sndUi(); };
 sndUi();
-$('#user').onclick = openOrders;
+$('#user').onclick = () => { const u = accountLink(); if (u) window.open(u, '_blank', 'noopener'); else openOrders(); };
 $('#pill').onclick = openDrawer; $('#basket').onclick = openDrawer;
 $('#dx').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
 $('#orderBtn').onclick = placeOrder;
