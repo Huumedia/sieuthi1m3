@@ -518,7 +518,7 @@ function applyFilter() {
     sh.head = 0; sh.tail = 0; sh.row.innerHTML = ''; sh.row.scrollLeft = 0;
     const filtered = terms.length || favOnly;
     sh.cnt.textContent = filtered ? `${sh.list.length} / ${sh.ids.length} sản phẩm` : `${sh.ids.length} sản phẩm`;
-    sh.el.hidden = filtered && !sh.list.length;
+    sh.el.hidden = !sh.list.length;                 // kệ không còn món nào (đang tìm kiếm, hoặc chưa có món ảnh nét) thì ẩn
     // đủ hàng phủ kín kệ thì cho kệ chạy vòng: kéo tới đâu hai bên vẫn còn hàng
     sh.loop = sh.list.length * slot > (sh.row.clientWidth || innerWidth) + slot * 2;
     appendN(sh, CHUNK);
