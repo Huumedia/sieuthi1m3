@@ -39,6 +39,12 @@ a{color:inherit}
 .ib svg{width:23px;height:23px;stroke:var(--ink);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .ib.on svg{fill:var(--red);stroke:var(--red)}
 #sndBtn .mx{display:none}
+#musBtn .mx{display:none}
+#musBtn.off .mx{display:inline}
+#musBtn.off svg{opacity:.55}
+#musBtn.playing svg{animation:bob 1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-2px) rotate(-6deg)}}
+@media (max-width:760px){#musBtn{display:grid}}
 #sndBtn.off .w1,#sndBtn.off .w2{display:none}
 #sndBtn.off .mx{display:inline}
 .dot{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--green);border:2px solid #fff}
@@ -273,6 +279,7 @@ main{padding-bottom:150px}
     <button class="ib" id="favBtn" aria-label="Sản phẩm yêu thích"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="n" id="favN"></span></button>
     <button class="ib" id="bell" aria-label="Thông báo"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></button>
     <button class="pill" id="pill" aria-label="Mở giỏ hàng"><small>Tổng</small><span id="tot">0đ</span><span class="c" id="cnt">0</span></button>
+    <button class="ib" id="musBtn" aria-label="Tắt nhạc" title="Nhạc nền: Dạo Kệ Vui Ghê"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path class="mx" d="M3 3l18 18"/></svg></button>
     <button class="ib" id="sndBtn" aria-label="Tắt tiếng"><svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4 4 0 0 1 0 6"/><path class="w2" d="M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="mx" d="m16 9.5 5 5m0-5-5 5"/></svg></button>
     <button class="ib" id="user" aria-label="Đăng ký / đăng nhập Droppii" title="Đăng ký / đăng nhập Droppii"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
     <button class="ib" id="menuBtn" aria-label="Ngành hàng"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -1032,6 +1039,33 @@ function updFav() { const n = favs.size, e = $('#favN'); e.textContent = n; e.cl
 $('#favBtn').onclick = () => { favOnly = !favOnly; updFav(); applyFilter(); scrollTo({ top: 0, behavior: 'smooth' }); toast(favOnly ? 'Đang xem sản phẩm yêu thích' : 'Xem tất cả sản phẩm'); };
 $('#menuBtn').onclick = e => { e.stopPropagation(); openPop('#menuPop', e.currentTarget); };
 $('#bell').onclick = e => { e.stopPropagation(); openPop('#bellPop', e.currentTarget); };
+/* ---------- nhạc nền: 2 bản "Dạo Kệ Vui Ghê", phát nối nhau; mặc định bật, khách tắt thì nhớ ---------- */
+const MUSIC = (() => {
+  const list = ['nhac/dao-ke-vui-ghe-1.mp3', 'nhac/dao-ke-vui-ghe-2.mp3'];
+  let on = store.get('st1m3-music', true), k = Math.random() * list.length | 0, a = null, started = false;
+  const btn = $('#musBtn');
+  const ui = () => { btn.classList.toggle('off', !on); btn.classList.toggle('playing', on && a && !a.paused); btn.setAttribute('aria-label', on ? 'Tắt nhạc' : 'Bật nhạc'); };
+  function ensure() {
+    if (a) return a;
+    a = new Audio(list[k]); a.volume = 0; a.preload = 'none';
+    a.addEventListener('ended', () => { k = (k + 1) % list.length; a.src = list[k]; a.play().catch(() => {}); });
+    a.addEventListener('play', ui); a.addEventListener('pause', ui);
+    return a;
+  }
+  function fade(to, ms, done) {
+    const from = a.volume, t0 = performance.now();
+    const step = now => { const x = Math.min(1, (now - t0) / ms); a.volume = from + (to - from) * x; if (x < 1) requestAnimationFrame(step); else if (done) done(); };
+    requestAnimationFrame(step);
+  }
+  function play() { ensure(); a.play().then(() => fade(.32, 1200)).catch(() => {}); started = true; }
+  function stop() { if (a && !a.paused) fade(0, 400, () => a.pause()); }
+  // trình duyệt chỉ cho phát nhạc sau lần chạm đầu tiên của khách
+  addEventListener('pointerdown', e => { if (on && !started && !e.target.closest('#musBtn')) play(); }, { capture: true, passive: true });
+  btn.onclick = () => { on = !on; store.set('st1m3-music', on); on ? play() : stop(); ui(); toast(on ? 'Đã bật nhạc' : 'Đã tắt nhạc'); };
+  document.addEventListener('visibilitychange', () => { if (!a || !on) return; document.hidden ? a.pause() : a.play().catch(() => {}); });
+  ui();
+  return { get on() { return on; } };
+})();
 const sndUi = () => { const b = $('#sndBtn'); b.classList.toggle('off', !SFX.on); b.setAttribute('aria-label', SFX.on ? 'Tắt tiếng' : 'Bật tiếng'); };
 $('#sndBtn').onclick = () => { toast(SFX.toggle() ? 'Đã bật âm thanh' : 'Đã tắt âm thanh'); sndUi(); };
 sndUi();
