@@ -10,11 +10,13 @@
       "link_chia_se": {
         "38b731fc-f9f8-435b-8271-b3d15c23e5a3": "https://droppii.vn/ref/1nsh"
       },
-      "link_tai_khoan": "https://link.droppii.vn/BXy4/refferal?ref=mebimmet3&is_trial=True"
+      "link_tai_khoan": "https://referral.droppiimall.vn/referral/999fe3ca-5db2-4a35-9f0b-2d8306177a6a",
+      "link_dai_ly": "https://link.droppii.vn/BXy4/refferal?ref=mebimmet3&is_trial=True"
     }
   },
   "nhom_chi_anh_net": [
     "Điện máy"
   ],
-  "_huong_dan_anh_net": "nhom_chi_anh_net: các nhóm hàng tạm chỉ bày món đã có ảnh nét (trường img trong catalog, gắn bằng tools/gan_anh_net.py). Xoá tên nhóm khỏi danh sách để bày lại toàn bộ."
+  "_huong_dan_anh_net": "nhom_chi_anh_net: các nhóm hàng tạm chỉ bày món đã có ảnh nét (trường img trong catalog, gắn bằng tools/gan_anh_net.py). Xoá tên nhóm khỏi danh sách để bày lại toàn bộ.",
+  "_huong_dan_link": "link_tai_khoan: link đăng ký tài khoản NGƯỜI MUA (Droppii Mall) dưới tên người bán; dùng cho nút hình người, chữ Droppii ở Đơn đã bấm mua, dòng Đăng ký qua cửa hàng. link_dai_ly: link đăng ký ĐẠI LÝ (Droppii Biz); dùng cho mục Đăng ký làm đại lý trong menu."
 }
