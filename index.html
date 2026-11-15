@@ -931,11 +931,10 @@ function placeOrder() {
     // đợi vài giây rồi chuyển chính tab đó sang món đầu tiên khách chọn (khách không phải xem món giới thiệu)
     if (r.classList.contains('gate') && first) {
       const firstRow = all.find(x => !x.classList.contains('gate') && x.querySelector('.go'));
-      const w = firstRow ? window.open('', '_blank') : null;
+      // giữ liên kết với tab mới (không cắt opener) để sau vài giây còn chuyển được tab đó sang món của khách
+      const w = firstRow ? window.open(gate, 'st1m3_droppii') : null;
       if (w) {
         e.preventDefault(); r._busy = true;
-        try { w.opener = null; } catch (err) {}
-        w.location.href = gate;
         if (!box._saved) box._saved = saveOrder(rows, t);
         SFX.play('bop', { gain: .35 });
         r.classList.add('connecting');
@@ -947,7 +946,8 @@ function placeOrder() {
           r.classList.add('done'); lab.textContent = 'Đã kết nối '; unlock();
           if (!w.closed) {
             try {
-              w.location.href = firstRow.querySelector('.go').href;
+              const url = firstRow.querySelector('.go').href;
+              try { w.location.href = url; } catch (err2) { window.open(url, 'st1m3_droppii'); }
               firstRow.classList.add('done'); firstRow.querySelector('.go').firstChild.textContent = 'Mở lại ';
             } catch (err) {}
           }
