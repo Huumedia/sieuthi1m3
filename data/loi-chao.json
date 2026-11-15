@@ -1,0 +1,48 @@
+{
+  "_huong_dan": "Lời chào hiện ở dải xanh trên kệ, theo giờ trên máy của khách: khuya 0h-5h, sáng 5h-11h, trưa 11h-13h30, chiều 13h30-18h, tối 18h-22h, khuya 22h-24h. Mỗi lần vào web chọn ngẫu nhiên 1 câu của buổi đó; thứ 7, chủ nhật có 1/2 khả năng dùng câu cuối tuần. Khách bấm ✕ thì ẩn tới buổi sau. {gia_soc} được thay bằng số món đang có ở kệ Giá sốc hôm nay.",
+  "sang": {
+    "icon": "☀️",
+    "cau": [
+      "Chào buổi sáng cô chú anh chị! Chúc cả nhà một ngày thật nhiều năng lượng, ghé kệ dạo một vòng cho vui nha.",
+      "Buổi sáng tốt lành! Pha ly cà phê, lướt Siêu Thị 1M3 một chút rồi hẵng bắt đầu ngày mới nhé.",
+      "Chào buổi sáng! Kệ Giá sốc hôm nay có {gia_soc} món đang chờ, ai dậy sớm ngắm trước nè.",
+      "Sáng nay trời đẹp, tâm trạng đẹp, giỏ hàng cũng phải xinh. Chào cả nhà!"
+    ]
+  },
+  "trua": {
+    "icon": "🍚",
+    "cau": [
+      "Chào buổi trưa cả nhà! Ăn cơm chưa ạ? Nghỉ trưa lướt kệ một chút cho thư giãn nha.",
+      "Trưa rồi, nghỉ tay chút đi cô chú anh chị ơi! Siêu thị mở cửa cả ngày, không cần xếp hàng.",
+      "Giờ nghỉ trưa là giờ vàng dạo siêu thị không chen chúc. Chào cả nhà!"
+    ]
+  },
+  "chieu": {
+    "icon": "🌤️",
+    "cau": [
+      "Chào buổi chiều! Làm việc vất vả rồi, ghé kệ đổi gió một chút nha cả nhà.",
+      "Chiều nay mua gì cho bữa tối đây ta? Kệ Bách hoá đang chờ cô chú anh chị nè.",
+      "Buổi chiều vui vẻ! Kéo kệ qua lại, thấy món nào xinh thì bấm một cái là vào giỏ liền."
+    ]
+  },
+  "toi": {
+    "icon": "🌙",
+    "cau": [
+      "Chào buổi tối cô chú anh chị! Cơm nước xong rồi, cả nhà cùng dạo siêu thị nha.",
+      "Tối rồi, thư giãn thôi! Lướt kệ, chọn món quà nhỏ cho mình và người thương nào.",
+      "Buổi tối ấm áp! Kệ Mẹ & Bé có nhiều món xinh cho bé yêu, ghé xem thử nha."
+    ]
+  },
+  "khuya": {
+    "icon": "✨",
+    "cau": [
+      "Khuya rồi mà vẫn ghé chơi, Siêu Thị 1M3 cảm ơn cô chú anh chị nhiều nha! Nhớ ngủ sớm giữ sức khoẻ.",
+      "Cú đêm ơi chào bạn! Siêu thị vẫn sáng đèn, nhưng đừng thức khuya quá nha.",
+      "Đêm yên tĩnh, dạo kệ thong thả. Chúc cả nhà ngủ thật ngon!"
+    ]
+  },
+  "cuoi_tuan": [
+    "Cuối tuần vui vẻ cả nhà ơi! Rảnh rang rồi, dạo siêu thị cho thoải mái nha.",
+    "Cuối tuần là để nghỉ ngơi và... dạo kệ! Chúc cô chú anh chị một ngày thật vui."
+  ]
+}

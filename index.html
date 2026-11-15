@@ -209,6 +209,8 @@ main{padding-bottom:150px}
 .odb .sec:hover{background:#f5f7f4}
 .hello{display:flex;align-items:center;gap:10px;padding:9px 26px;background:var(--green-l);color:#24502f;font-size:13.5px;border-bottom:1px solid #d5e8da}
 .hello b{color:var(--green-d)}
+.hello .hi{font-size:18px;line-height:1;transform-origin:70% 80%;flex:none}
+.hello[hidden]{display:none}
 .hello button{margin-left:auto;width:28px;height:28px;border-radius:50%;flex:none;color:#4c6b55}
 .hello button:hover{background:rgba(0,0,0,.06)}
 @media (max-width:760px){.hello{padding:8px 14px;font-size:12.5px}}
@@ -277,7 +279,7 @@ main{padding-bottom:150px}
   </div>
 </header>
 
-<div class="hello" id="hello"><span><b>Siêu Thị 1M3</b>: dạo kệ như đi siêu thị thật, bấm vào món là bỏ vào giỏ. Đặt hàng, thanh toán và giao hàng do Droppii lo.</span><button id="helloX" aria-label="Ẩn">✕</button></div>
+<div class="hello" id="hello"><span class="hi" id="helloIcon">👋</span><span id="helloText"><b>Siêu Thị 1M3</b>: dạo kệ như đi siêu thị thật, bấm vào món là bỏ vào giỏ. Đặt hàng, thanh toán và giao hàng do Droppii lo.</span><button id="helloX" aria-label="Ẩn">✕</button></div>
 <main id="aisles"><div class="loading">Đang bày hàng lên kệ…</div></main>
 
 <div id="basket" title="Xem giỏ hàng">
@@ -1037,8 +1039,37 @@ $('#user').onclick = () => { const u = accountLink(); if (u) window.open(u, '_bl
 $('#pill').onclick = openDrawer; $('#basket').onclick = openDrawer;
 $('#dx').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
 $('#orderBtn').onclick = placeOrder;
-if (store.get('st1m3-hello-off', false)) $('#hello').remove();
-else $('#helloX').onclick = () => { store.set('st1m3-hello-off', true); const h = $('#hello'); h.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).onfinish = () => h.remove(); };
+/* ---------- lời chào theo giờ (data/loi-chao.json) ---------- */
+let LOICHAO = null;
+const SLOTS = [['khuya', 0, 5], ['sang', 5, 11], ['trua', 11, 13.5], ['chieu', 13.5, 18], ['toi', 18, 22], ['khuya', 22, 24]];
+const slotNow = d => { const h = d.getHours() + d.getMinutes() / 60; return SLOTS.find(x => h >= x[1] && h < x[2])[0]; };
+function greet() {
+  const el = $('#hello'); if (!el || !LOICHAO) return;
+  const d = new Date(), sl = slotNow(d), key = d.toDateString() + ':' + sl, cfg = LOICHAO[sl];
+  if (store.get('st1m3-hello-off', '') === key) { el.hidden = true; return; }
+  if (el.dataset.slot === sl || !cfg || !cfg.cau || !cfg.cau.length) return;
+  const weekend = (d.getDay() === 0 || d.getDay() === 6) && LOICHAO.cuoi_tuan && LOICHAO.cuoi_tuan.length && Math.random() < .5;
+  const pool = weekend ? LOICHAO.cuoi_tuan : cfg.cau;
+  const line = pool[Math.random() * pool.length | 0].replace(/\{gia_soc\}/g, SHELVES[0] ? SHELVES[0].ids.length : 'nhiều');
+  const first = !el.dataset.slot; el.dataset.slot = sl; el.hidden = false;
+  const swap = () => { $('#helloIcon').textContent = cfg.icon || '👋'; $('#helloText').textContent = line; };
+  if (REDUCED) return swap();
+  if (first) {
+    swap();
+    el.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: EASE_OUT });
+    $('#helloIcon').animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-14deg)' }, { transform: 'rotate(12deg)' }, { transform: 'rotate(-8deg)' }, { transform: 'rotate(0)' }], { duration: 900, delay: 350, easing: 'ease-in-out' });
+  } else {
+    // sang buổi mới khi khách vẫn đang mở trang: đổi câu chào mượt
+    const t = $('#helloText');
+    t.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220 }).onfinish = () => { swap(); t.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320 }); };
+  }
+}
+$('#helloX').onclick = () => {
+  const d = new Date(); store.set('st1m3-hello-off', d.toDateString() + ':' + slotNow(d));
+  const h = $('#hello'); h.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).onfinish = () => { h.hidden = true; h.dataset.slot = ''; };
+};
+fetch('data/loi-chao.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { LOICHAO = j; if (SHELVES.length) greet(); }).catch(() => {});
+setInterval(greet, 60000);
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
 $('#home').onclick = e => { e.preventDefault(); $('#q').value = ''; query = ''; favOnly = false; updFav(); $('#searchBox').classList.remove('has'); applyFilter(); scrollTo({ top: 0, behavior: 'smooth' }); };
 let qT;
@@ -1057,7 +1088,7 @@ Promise.all([fetch('data/catalog.json', { cache: 'no-cache' }).then(r => r.json(
   for (const k of [...cart.keys()]) if (!ITEMS[k]) cart.delete(k);
   for (const k of [...favs]) if (!ITEMS[k]) favs.delete(k);
   UIDX = new Map(ITEMS.map((it, i) => [uuidOf(it), i]));
-  buildShelves(cat); buildPops(); updFav(); refresh();
+  buildShelves(cat); buildPops(); updFav(); refresh(); greet();
 }).catch(() => { $('#aisles').innerHTML = '<div class="loading">Không tải được dữ liệu hàng. Hãy mở trang qua máy chủ web.</div>'; });
 </script>
 </body>
