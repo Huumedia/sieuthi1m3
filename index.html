@@ -456,10 +456,13 @@ function enableDrag(sh) {
 /* ---------- build shelves ---------- */
 function buildShelves(cat) {
   const byG = GROUPS.map(() => []);
-  ITEMS.forEach((it, i) => { it.i = i; it.key = norm(it.n + ' ' + (it.b || '')); if (byG[it.g]) byG[it.g].push(i); });
+  // nhóm trong nhom_chi_anh_net (ban-hang.json): tạm chỉ bày món đã có ảnh nét
+  const sharpOnly = new Set(GROUPS.map((g, gi) => (SALE.nhom_chi_anh_net || []).includes(g.name) ? gi : -1).filter(x => x >= 0));
+  const shown = i => !sharpOnly.has(ITEMS[i].g) || !!ITEMS[i].img;
+  ITEMS.forEach((it, i) => { it.i = i; it.key = norm(it.n + ' ' + (it.b || '')); if (byG[it.g] && shown(i)) byG[it.g].push(i); });
   // món có ảnh nét lên đầu kệ, còn lại xếp theo số đã bán
   byG.forEach(a => a.sort((x, y) => (!!ITEMS[y].img - !!ITEMS[x].img) || (ITEMS[y].s || 0) - (ITEMS[x].s || 0)));
-  const sale = (cat.sale || []).slice().sort((x, y) => (1 - ITEMS[x].p / ITEMS[x].o) < (1 - ITEMS[y].p / ITEMS[y].o) ? 1 : -1);
+  const sale = (cat.sale || []).filter(shown).sort((x, y) => (1 - ITEMS[x].p / ITEMS[x].o) < (1 - ITEMS[y].p / ITEMS[y].o) ? 1 : -1);
   SHELVES = [{ name: 'Giá sốc hôm nay', ids: sale, sale: true, color: '#d93a2b' }]
     .concat(GROUPS.map((g, gi) => ({ name: g.name, ids: byG[gi], color: g.color })));
   const main = $('#aisles'); main.innerHTML = '';
@@ -768,7 +771,7 @@ function updateDrawer() {
 /* ---------- mã giới thiệu (cách 2) ----------
    Khách vào web qua link có ?ref=MA (hoặc ?ctv=MA): web nhớ mã trong N ngày (người giới thiệu sau cùng được tính),
    mọi link sang Droppii đều ghép mã này. Cách ghép khai báo ở data/ban-hang.json. */
-let SALE = { ma_mac_dinh: '', so_ngay_nho_ma: 30, link_dang_ky: '', nguoi_ban: {} };
+let SALE = { ma_mac_dinh: '', so_ngay_nho_ma: 30, link_dang_ky: '', nguoi_ban: {}, nhom_chi_anh_net: [] };
 const REF_KEY = 'st1m3-ref';
 (function captureRef() {
   try {
@@ -979,8 +982,8 @@ addEventListener('scroll', () => tip.classList.remove('show'), { passive: true }
 let rsT; addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => SHELVES.length && applyFilter(), 250); });
 
 /* ---------- start ---------- */
-fetch('data/ban-hang.json', { cache: 'no-cache' }).then(r => r.json()).then(c => { SALE = Object.assign(SALE, c); }).catch(() => {});
-fetch('data/catalog.json', { cache: 'no-cache' }).then(r => r.json()).then(cat => {
+const cfgReady = fetch('data/ban-hang.json', { cache: 'no-cache' }).then(r => r.json()).then(c => { SALE = Object.assign(SALE, c); }).catch(() => {});
+Promise.all([fetch('data/catalog.json', { cache: 'no-cache' }).then(r => r.json()), cfgReady]).then(([cat]) => {
   ITEMS = cat.items; GROUPS = cat.groups; APX = cat.atlas.size;
   for (const k of [...cart.keys()]) if (!ITEMS[k]) cart.delete(k);
   for (const k of [...favs]) if (!ITEMS[k]) favs.delete(k);
