@@ -91,6 +91,9 @@ main{padding-bottom:150px}
 .tag sup{font-size:9.5px;font-weight:700;vertical-align:6px;margin-left:1px}
 .tag.s{color:var(--red);border-color:#f0c8c3}
 .tag s{display:block;text-align:center;font-size:9.5px;font-weight:500;color:#999;margin-bottom:-1px}
+.off.tk{background:#1f8a3b}
+#tip .tkline{color:#bff0c8}
+#tip .tkline b{color:#fff}
 .off{position:absolute;top:8px;right:16px;z-index:3;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:9px}
 .fav{position:absolute;top:10px;left:14px;z-index:3;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.15);display:grid;place-items:center;opacity:0;transform:scale(.8);transition:.18s}
 .fav svg{width:15px;height:15px;stroke:#333;stroke-width:2;fill:none}
@@ -561,7 +564,7 @@ function slotEl(i) {
   d.className = 'slot'; d.dataset.i = i;
   const off = it.o > it.p ? Math.round((1 - it.p / it.o) * 100) : 0;
   d.innerHTML = `<button class="fav${favs.has(i) ? ' on' : ''}" aria-label="Yêu thích"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
-    ${off >= 5 ? `<span class="off">-${off}%</span>` : ''}
+    ${off >= 5 ? `<span class="off">-${off}%</span>` : (comboSave(it) ? `<span class="off tk">Tiết kiệm ${kShort(comboSave(it).tk)}</span>` : '')}
     <span class="gnd"></span><div class="hop"><div class="pic" style="${sprite(it, DIM.bw, DIM.bh)}" role="img" aria-label="${esc(it.n)}"></div></div>
     ${qtyHtml(i)}${tagHtml(it)}`;
   return d;
@@ -797,7 +800,9 @@ function updateDrawer() {
 /* ---------- mã giới thiệu (cách 2) ----------
    Khách vào web qua link có ?ref=MA (hoặc ?ctv=MA): web nhớ mã trong N ngày (người giới thiệu sau cùng được tính),
    mọi link sang Droppii đều ghép mã này. Cách ghép khai báo ở data/ban-hang.json. */
-let SALE = { ma_mac_dinh: '', so_ngay_nho_ma: 30, link_dang_ky: '', nguoi_ban: {}, nhom_chi_anh_net: [] };
+let SALE = { ma_mac_dinh: '', so_ngay_nho_ma: 30, link_dang_ky: '', nguoi_ban: {}, nhom_chi_anh_net: [], tiet_kiem_combo: {} };
+const kShort = v => v >= 1e6 ? (Math.round(v / 1e5) / 10).toString().replace('.', ',') + 'tr' : Math.round(v / 1000) + 'k';
+const comboSave = it => (SALE.tiet_kiem_combo || {})[uuidOf(it)];
 const REF_KEY = 'st1m3-ref';
 (function captureRef() {
   try {
@@ -1027,6 +1032,7 @@ function showTip(slot) {
   const it = ITEMS[+slot.dataset.i], r = slot.querySelector('.pic').getBoundingClientRect();
   const d = MOTA ? MOTA[uuidOf(it)] : null;
   tip.innerHTML = `<b>${esc(it.n)}</b><span>${esc(it.b || '')}${it.r ? ` · ★ ${it.r}` : ''}${it.s ? ` · đã bán ${it.s.toLocaleString('vi-VN')}` : ''}</span>` +
+    (comboSave(it) ? `<p class="tkline">Mua combo rẻ hơn mua ${comboSave(it).so} ${comboSave(it).dv} lẻ (${fmt(comboSave(it).le)}/${comboSave(it).dv}): <b>tiết kiệm ${fmt(comboSave(it).tk)}</b></p>` : '') +
     (d && d.t ? `<p>${esc(d.t)}</p>` : '') + (d && d.tp ? `<p><i>Thành phần:</i> ${esc(d.tp)}</p>` : '') +
     (d ? '<small>Theo mô tả trên Droppii</small>' : (MOTA ? '' : '<small>Đang tải thông tin…</small>'));
   tip.classList.add('show');

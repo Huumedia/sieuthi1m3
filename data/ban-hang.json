@@ -25,5 +25,62 @@
     "Điện máy"
   ],
   "_huong_dan_anh_net": "nhom_chi_anh_net: các nhóm hàng tạm chỉ bày món đã có ảnh nét (trường img trong catalog, gắn bằng tools/gan_anh_net.py). Xoá tên nhóm khỏi danh sách để bày lại toàn bộ.",
-  "_huong_dan_link": "link_tai_khoan: link đăng ký tài khoản NGƯỜI MUA (Droppii Mall) dưới tên người bán; dùng cho nút hình người, chữ Droppii ở Đơn đã bấm mua, dòng Đăng ký qua cửa hàng. link_dai_ly: link đăng ký ĐẠI LÝ (Droppii Biz); dùng cho mục Đăng ký làm đại lý trong menu."
+  "_huong_dan_link": "link_tai_khoan: link đăng ký tài khoản NGƯỜI MUA (Droppii Mall) dưới tên người bán; dùng cho nút hình người, chữ Droppii ở Đơn đã bấm mua, dòng Đăng ký qua cửa hàng. link_dai_ly: link đăng ký ĐẠI LÝ (Droppii Biz); dùng cho mục Đăng ký làm đại lý trong menu.",
+  "tiet_kiem_combo": {
+    "fc9e186e-07e5-4499-818d-0363fded6bce": {
+      "so": 6,
+      "dv": "hộp",
+      "le": 312000,
+      "tk": 312000
+    },
+    "533988bb-6d1c-4648-a4ad-f0cd44d99c78": {
+      "so": 3,
+      "dv": "hộp",
+      "le": 390000,
+      "tk": 204000
+    },
+    "0f92bad5-1ea4-4142-89f4-8bf472cc4407": {
+      "so": 2,
+      "dv": "hộp",
+      "le": 990000,
+      "tk": 190000
+    },
+    "9e5736e1-b244-47b2-a5be-28236e76e33f": {
+      "so": 3,
+      "dv": "hộp",
+      "le": 265000,
+      "tk": 40000
+    },
+    "c7a6bf64-11e3-42c8-9d76-e0fc46bda09f": {
+      "so": 3,
+      "dv": "hộp",
+      "le": 249000,
+      "tk": 38000
+    },
+    "f9684d73-6b9d-4ecc-b189-6ebe766a11a0": {
+      "so": 2,
+      "dv": "hộp",
+      "le": 330000,
+      "tk": 30000
+    },
+    "dc18ccc3-6fc2-4c49-ad06-31e4964b35ba": {
+      "so": 5,
+      "dv": "hộp",
+      "le": 730000,
+      "tk": 130000
+    },
+    "0a6de4a8-dc74-434a-8af3-2527e4c778ce": {
+      "so": 3,
+      "dv": "hộp",
+      "le": 730000,
+      "tk": 78000
+    },
+    "11bf4b2f-5375-48a3-8419-4690878493be": {
+      "so": 5,
+      "dv": "hộp",
+      "le": 980000,
+      "tk": 50000
+    }
+  },
+  "_huong_dan_tiet_kiem": "tiet_kiem_combo: uuid combo -> so (số hộp), le (giá 1 hộp lẻ), tk (tiết kiệm so với mua lẻ). Web hiện nhãn \"Tiết kiệm …\" trên kệ và dòng so sánh trong khung thông tin. Giá đổi thì tính lại."
 }
