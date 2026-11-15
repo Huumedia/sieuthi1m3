@@ -85,6 +85,7 @@ main{padding-bottom:150px}
 .gnd{position:absolute;top:calc(var(--pic-h) + 1px);left:15%;width:70%;height:16px;border-radius:50%;background:radial-gradient(closest-side,rgba(45,70,35,.26),rgba(45,70,35,0));pointer-events:none;will-change:transform,opacity}
 @media (pointer:fine){.row{cursor:grab}.row .pic{cursor:pointer}}
 .row.dragging,.row.dragging .pic{cursor:grabbing}
+.pic{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .row.dragging .slot:hover .pic{transform:none}
 .tag{position:absolute;bottom:13px;background:#fff;border:1px solid #d6dccf;border-radius:3px;padding:2px 8px 3px;font-weight:800;font-size:16px;line-height:1.1;box-shadow:0 1px 2px rgba(0,0,0,.08);white-space:nowrap;z-index:2}
 .tag sup{font-size:9.5px;font-weight:700;vertical-align:6px;margin-left:1px}
@@ -1125,6 +1126,27 @@ $('#q').addEventListener('input', e => { $('#searchBox').classList.toggle('has',
 $('#clr').onclick = e => { e.preventDefault(); $('#q').value = ''; query = ''; $('#searchBox').classList.remove('has'); applyFilter(); $('#q').focus(); };
 addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDrawer(); closePops(); } if (e.key === '/' && document.activeElement !== $('#q')) { e.preventDefault(); $('#q').focus(); } });
 $('#aisles').addEventListener('mouseover', e => { if (BUSY) return; const s = e.target.closest('.pic'); if (s) showTip(s.closest('.slot')); });
+/* điện thoại: giữ ngón tay lên món hàng khoảng 0,45 giây để xem thông tin (không bỏ vào giỏ) */
+(() => {
+  let lp = null, suppress = false;
+  const aisles = $('#aisles');
+  aisles.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;
+    const pic = e.target.closest('.pic'); if (!pic) { tip.classList.remove('show'); return; }
+    lp = { x: e.clientX, y: e.clientY, t: setTimeout(() => {
+      lp = null; suppress = true;
+      showTip(pic.closest('.slot')); if (navigator.vibrate) navigator.vibrate(12);
+      if (!REDUCED) pic.closest('.hop').animate([{ transform: 'scale(1)' }, { transform: 'scale(.95)' }, { transform: 'scale(1)' }], { duration: 260 });
+    }, 450) };
+  }, { passive: true });
+  const cancel = () => { if (lp) { clearTimeout(lp.t); lp = null; } };
+  aisles.addEventListener('pointermove', e => { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 10) cancel(); }, { passive: true });
+  aisles.addEventListener('pointerup', cancel); aisles.addEventListener('pointercancel', cancel);
+  // giữ xong thả tay thì không tính là bấm mua
+  aisles.addEventListener('click', e => { if (suppress) { suppress = false; e.stopPropagation(); e.preventDefault(); } }, true);
+  aisles.addEventListener('contextmenu', e => { if (e.target.closest('.pic')) e.preventDefault(); });
+  document.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' && !e.target.closest('#aisles .pic')) tip.classList.remove('show'); }, { passive: true });
+})();
 $('#aisles').addEventListener('mouseout', e => { if (e.target.closest('.pic')) tip.classList.remove('show'); });
 addEventListener('scroll', () => tip.classList.remove('show'), { passive: true });
 let rsT; addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => SHELVES.length && applyFilter(), 250); });
