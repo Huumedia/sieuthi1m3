@@ -334,7 +334,7 @@ let ITEMS = [], GROUPS = [], APX = 2048, SHELVES = [];
 /* ---------- hiệu ứng âm thanh ----------
    pop   = hard pop (tt_hard_pop_click, D:\Sound Effect Setting\SFX Library\05_pop_click_ui): bấm mua, món bật lên
    bop   = tiếng "bộp" tạo bằng code (D:\Short Video AI\SFX Library): món rơi vào giỏ
-   swish = Swoosh 04 (…\04_chuyen_canh_whoosh): bớt / bỏ món khỏi giỏ */
+   swish = Swoosh 01 - 03/06/07 (thư mục 04_chuyen_canh_whoosh), đã lọc trầm và làm êm: bớt / bỏ món khỏi giỏ */
 const SFX = (() => {
   const FILES = { pop: ['hardpop'], bop: ['bop_01', 'bop_02', 'bop_03'], swish: ['swish_01', 'swish_02', 'swish_03'] };
   const raw = {}, buf = {};
@@ -583,7 +583,7 @@ function setQty(i, n, fromEl) {
   store.set('st1m3-cart', [...cart]);
   document.querySelectorAll(`.q[data-i="${i}"]`).forEach(q => { q.classList.toggle('has', n > 0); q.querySelector('.v').textContent = n; });
   if (n > old && fromEl) flyToBasket(i, fromEl);
-  else if (n < old) SFX.play('swish', { gain: n ? .3 : .4, rate: n ? 1.08 : 1 });
+  else if (n < old) SFX.play('swish', { gain: n ? .18 : .24, rate: n ? .92 : .86 });
   refresh(n !== old);
 }
 function totals() { let n = 0, t = 0; cart.forEach((q, i) => { n += q; t += q * ITEMS[i].p; }); return { n, t }; }
@@ -836,7 +836,7 @@ function openOrders() {
     if (b.dataset.act === 'del') {
       store.set(ORD_KEY, all.filter(x => x.id !== o.id));
       od.animate([{ opacity: 1 }, { opacity: 0, transform: 'translateX(30px)' }], { duration: 260, easing: 'ease-in' }).onfinish = () => { od.remove(); if (!box.querySelector('.od')) openOrders(); };
-      SFX.play('swish', { gain: .3 });
+      SFX.play('swish', { gain: .2, rate: .9 });
     } else {
       let added = 0;
       o.items.forEach(x => { const i = UIDX.get(x.u); if (i !== undefined) { cart.set(i, (cart.get(i) || 0) + x.q); added++; } });
@@ -918,7 +918,7 @@ function placeOrder() {
     const a = e.target.closest('.go'); if (!a) return;
     const r = a.closest('.ckr'), first = !r.classList.contains('done');
     if (locked && r !== opener) {
-      e.preventDefault(); SFX.play('swish', { gain: .25, rate: 1.2 });
+      e.preventDefault(); SFX.play('swish', { gain: .14, rate: .95 });
       if (!REDUCED) {
         opener.animate([{ transform: 'none' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(-3px)' }, { transform: 'none' }], { duration: 380, easing: 'ease-out' });
         lockHint.animate([{ background: '#ffe2a8' }, { background: '#fff3d6' }], { duration: 700 });
@@ -970,7 +970,7 @@ function placeOrder() {
       `\nTạm tính: ${fmt(t)}` + (registerLink() ? `\nĐăng ký Droppii: ${registerLink()}` : '');
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Đã sao chép danh sách đơn'), () => toast('Trình duyệt không cho sao chép'));
   };
-  $('#ckClear').onclick = () => { closeModal(); clearCart(); SFX.play('swish', { gain: .35 }); toast('Đã làm trống giỏ hàng'); };
+  $('#ckClear').onclick = () => { closeModal(); clearCart(); SFX.play('swish', { gain: .22, rate: .88 }); toast('Đã làm trống giỏ hàng'); };
   if (!REDUCED) {
     box.animate([{ opacity: 0, transform: 'translateY(18px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE_OUT });
     all.forEach((r, k) => r.animate([{ opacity: 0, transform: 'translateY(-12px)' }, { opacity: 1, transform: 'none' }],
