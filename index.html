@@ -186,6 +186,8 @@ main{padding-bottom:150px}
 .ckr.done .go{border-color:#cfd6cc;color:#7b847e}
 .ckr.done .ckn b::before{content:'✓ ';color:var(--green)}
 .nolink{font-size:12px;color:var(--muted)}
+.ckr.connecting .go{cursor:progress;background:#2a9d4b;min-width:150px;justify-content:center}
+.ckr.connecting .go svg{display:none}
 .cklock{display:flex;align-items:center;gap:8px;margin:2px 0 8px;padding:8px 12px;border-radius:10px;background:#fff3d6;color:#6b5210;font-size:12.5px;line-height:1.4}
 .cklock svg{flex:none;width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
 .cklock b{color:#3d3108}
@@ -870,11 +872,11 @@ function placeOrder() {
   box.innerHTML = `<div class="ckh"><h3>Hoàn tất đơn trên Droppii</h3><button class="x" id="ckx" aria-label="Đóng">✕</button></div>
     <p class="ckp">Droppii lo thanh toán và giao hàng. Bấm <b>Mở Droppii</b> ở từng món, chọn đúng số lượng, thêm vào giỏ Droppii rồi thanh toán một lần trên Droppii.</p>
     <div class="ckpg"><div class="ckbar"><i id="ckBar"></i></div><span><b id="ckN">0</b>/${rows.length + (gate ? 1 : 0)} bước</span></div>
-    <p class="cklock" id="ckLock" hidden><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>${gate ? 'Bấm <b>Mở gian hàng</b> trước để đơn được ghi nhận cho cửa hàng, các nút <b>Mở Droppii</b> sẽ mở khoá.' : 'Bấm <b>Mở Droppii</b> ở món đầu tiên trước để đơn được ghi nhận cho cửa hàng, các món còn lại sẽ mở khoá.'}</span></p>
+    <p class="cklock" id="ckLock" hidden><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>${gate ? 'Bấm <b>Kết nối gian hàng</b> trước, các nút <b>Mở Droppii</b> sẽ mở khoá.' : 'Bấm <b>Mở Droppii</b> ở món đầu tiên trước để đơn được ghi nhận cho cửa hàng, các món còn lại sẽ mở khoá.'}</span></p>
     <div class="cklist">${gate ? `<div class="ckr gate">
       <span class="th gi"><svg viewBox="0 0 24 24"><path d="M4 10v9h16v-9M3 10l2-5h14l2 5M3 10h18M9 19v-5h6v5"/></svg></span>
-      <div class="ckn"><b>Mở gian hàng ${esc(sl.ten || 'cửa hàng')} trên Droppii</b><span>Mở trước tiên để Droppii ghi nhận bạn mua qua cửa hàng. Trang hiện một sản phẩm giới thiệu, bạn không cần mua món đó.</span></div>
-      <a class="go" href="${esc(gate)}" target="_blank" rel="noopener">Mở gian hàng <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      <div class="ckn"><b>Kết nối với gian hàng ${esc(sl.ten || 'cửa hàng')} trên Droppii</b><span>Để cửa hàng hỗ trợ đơn hàng của bạn. Kết nối xong, Droppii tự mở món đầu tiên trong giỏ.</span></div>
+      <a class="go" href="${esc(gate)}" target="_blank" rel="noopener">Kết nối gian hàng <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
     </div>` : ''}${rows.map(([i, q]) => { const it = ITEMS[i]; return `<div class="ckr" data-i="${i}">
       <span class="th" style="${sprite(it, 46, 46, 1.3, 'center')}"></span>
       <div class="ckn"><b>${esc(it.n)}</b><span>Số lượng <em>${q}</em> · ${fmt(it.p * q)}</span></div>
@@ -890,12 +892,12 @@ function placeOrder() {
   // bước mở đầu (gian hàng, hoặc món đầu có link chia sẻ) lưu mã người bán vào trình duyệt khách:
   // khoá các nút còn lại cho tới khi khách bấm bước này (nhớ 12 giờ để lần sau không phải bấm lại)
   const opener = gate || (rows.length && shareLink(ITEMS[rows[0][0]])) ? all[0] : null;
-  const GATE_KEY = 'st1m3-gate', gateFresh = Date.now() - (store.get(GATE_KEY, 0) || 0) < 12 * 36e5;
+  const GATE_WAIT = 5, GATE_KEY = 'st1m3-gate', gateFresh = Date.now() - (store.get(GATE_KEY, 0) || 0) < 12 * 36e5;
   let locked = !!opener && !gateFresh && all.length > 1;
   const lockHint = $('#ckLock');
   const setLocks = () => all.forEach(r => { if (r !== opener && r.querySelector('.go')) r.classList.toggle('locked', locked); });
   if (locked) { lockHint.hidden = false; setLocks(); }
-  else if (opener && gateFresh && opener.classList.contains('gate')) { opener.classList.add('done'); opener.querySelector('.go').firstChild.textContent = 'Đã mở '; }
+  else if (opener && gateFresh && opener.classList.contains('gate')) { opener.classList.add('done'); opener.querySelector('.go').firstChild.textContent = 'Đã kết nối '; }
   const unlock = () => {
     if (!locked) return;
     locked = false; store.set(GATE_KEY, Date.now()); setLocks();
@@ -924,16 +926,47 @@ function placeOrder() {
       opener.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       return;
     }
+    if (r._busy) { e.preventDefault(); return; }
+    // gian hàng: mở link chia sẻ trong tab mới để Droppii lưu mã người bán,
+    // đợi vài giây rồi chuyển chính tab đó sang món đầu tiên khách chọn (khách không phải xem món giới thiệu)
+    if (r.classList.contains('gate') && first) {
+      const firstRow = all.find(x => !x.classList.contains('gate') && x.querySelector('.go'));
+      const w = firstRow ? window.open('', '_blank') : null;
+      if (w) {
+        e.preventDefault(); r._busy = true;
+        try { w.opener = null; } catch (err) {}
+        w.location.href = gate;
+        if (!box._saved) box._saved = saveOrder(rows, t);
+        SFX.play('bop', { gain: .35 });
+        r.classList.add('connecting');
+        const lab = a.firstChild; let left = GATE_WAIT;
+        lab.textContent = `Đang kết nối… ${left} `;
+        const iv = setInterval(() => {
+          if (--left > 0) { lab.textContent = `Đang kết nối… ${left} `; return; }
+          clearInterval(iv); r._busy = false; r.classList.remove('connecting');
+          r.classList.add('done'); lab.textContent = 'Đã kết nối '; unlock();
+          if (!w.closed) {
+            try {
+              w.location.href = firstRow.querySelector('.go').href;
+              firstRow.classList.add('done'); firstRow.querySelector('.go').firstChild.textContent = 'Mở lại ';
+            } catch (err) {}
+          }
+          mark();
+          const nx = list.querySelector('.ckr.next'); if (nx) nx.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }, 1000);
+        return;
+      }
+    }
     if (r === opener) unlock();
     if (!box._saved) { box._saved = saveOrder(rows, t); }
-    r.classList.add('done'); a.firstChild.textContent = r.classList.contains('gate') ? 'Đã mở ' : 'Mở lại ';
+    r.classList.add('done'); a.firstChild.textContent = r.classList.contains('gate') ? 'Đã kết nối ' : 'Mở lại ';
     if (first) SFX.play('bop', { gain: .35 });
     mark();
     const nx = list.querySelector('.ckr.next'); if (nx) nx.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
   $('#ckx').onclick = closeModal;
   $('#ckCopy').onclick = () => {
-    const txt = (gate ? `Bước 1 (mở trước để đơn ghi nhận cho cửa hàng): ${gate}\n` : '') + rows.map(([i, q]) => `• ${ITEMS[i].n} × ${q} = ${fmt(ITEMS[i].p * q)}\n  ${droppiiLink(ITEMS[i])}`).join('\n') +
+    const txt = (gate ? `Bước 1, kết nối gian hàng (mở trước): ${gate}\n` : '') + rows.map(([i, q]) => `• ${ITEMS[i].n} × ${q} = ${fmt(ITEMS[i].p * q)}\n  ${droppiiLink(ITEMS[i])}`).join('\n') +
       `\nTạm tính: ${fmt(t)}` + (registerLink() ? `\nĐăng ký Droppii: ${registerLink()}` : '');
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Đã sao chép danh sách đơn'), () => toast('Trình duyệt không cho sao chép'));
   };
