@@ -1,0 +1,15 @@
+{
+  "_huong_dan": "Cách Droppii ghi nhận người bán (thử 2026-11-15): khách mở link chia sẻ droppii.vn/ref/<mã> lấy từ app Droppii thì trình duyệt khách được lưu cookie droppii_affiliate_cart {agentId, affiliateCode}; cookie áp cho cả giỏ hàng, kể cả món khác. Vì vậy: món có link_chia_se được mở bằng link đó và xếp lên đầu; giỏ không có món nào như vậy thì khách mở link_mo_dau (gian hàng) trước. Ghép ?ref= vào link sản phẩm thường thì Droppii không giữ. nguoi_ban: khoá là mã người tư vấn (đoạn cuối link mời đăng ký). ma_mac_dinh: người bán khi khách không vào qua link CTV. Link CTV: <web>/?ref=<mã CTV>. Thêm link chia sẻ: python tools/them_link_chia_se.py [--ma <mã>] <link> ...",
+  "ma_mac_dinh": "999fe3ca-5db2-4a35-9f0b-2d8306177a6a",
+  "link_dang_ky": "https://referral.droppiimall.vn/referral/{ma}",
+  "so_ngay_nho_ma": 30,
+  "nguoi_ban": {
+    "999fe3ca-5db2-4a35-9f0b-2d8306177a6a": {
+      "ten": "Siêu Thị 1M3",
+      "link_mo_dau": "https://droppii.vn/ref/1nsh",
+      "link_chia_se": {
+        "38b731fc-f9f8-435b-8271-b3d15c23e5a3": "https://droppii.vn/ref/1nsh"
+      }
+    }
+  }
+}
