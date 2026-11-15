@@ -158,10 +158,13 @@ main{padding-bottom:150px}
 .pop .sw{width:10px;height:10px;border-radius:3px;flex:none}
 .pop .th{width:38px;height:38px;flex:none;background-repeat:no-repeat}
 .pop .pr{margin-left:auto;font-weight:700;color:var(--red);font-size:12.5px;white-space:nowrap}
-#tip{position:fixed;z-index:55;pointer-events:none;background:#1d2320;color:#fff;border-radius:10px;padding:9px 12px;font-size:12.5px;max-width:250px;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.25);opacity:0;transition:opacity .12s}
+#tip{position:fixed;z-index:55;pointer-events:none;background:#1d2320;color:#fff;border-radius:10px;padding:9px 12px;font-size:12.5px;max-width:330px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.25);opacity:0;transition:opacity .12s}
 #tip.show{opacity:1}
 #tip b{display:block;font-size:13px;margin-bottom:2px}
 #tip span{color:#b9c4bc}
+#tip p{margin:7px 0 0;color:#e8ede9}
+#tip p i{font-style:normal;color:#9fd7ae;font-weight:600}
+#tip small{display:block;margin-top:6px;color:#7f8a83;font-size:11px}
 #modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;background:rgba(20,25,20,.45);padding:16px}
 #modal.show{display:grid}
 .mbox{background:#fff;border-radius:18px;padding:28px 26px;max-width:380px;width:100%;text-align:center;animation:fade .25s}
@@ -1004,13 +1007,24 @@ function buildPops() {
 
 /* ---------- tip & toast ---------- */
 const tip = $('#tip');
+/* mô tả ngắn + thành phần (data/mo-ta.json, tạo bằng tools/xuat_mo_ta.py), tải khi khách trỏ chuột lần đầu */
+let MOTA = null, motaLoading = null, tipSlot = null;
+function loadMota() {
+  if (!motaLoading) motaLoading = fetch('data/mo-ta.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { MOTA = j; if (tipSlot && tip.classList.contains('show')) showTip(tipSlot); }).catch(() => { MOTA = {}; });
+  return motaLoading;
+}
 function showTip(slot) {
+  tipSlot = slot; if (!MOTA) loadMota();
   const it = ITEMS[+slot.dataset.i], r = slot.querySelector('.pic').getBoundingClientRect();
-  tip.innerHTML = `<b>${esc(it.n)}</b><span>${esc(it.b || '')}${it.r ? ` · ★ ${it.r}` : ''}${it.s ? ` · đã bán ${it.s.toLocaleString('vi-VN')}` : ''}</span>`;
+  const d = MOTA ? MOTA[uuidOf(it)] : null;
+  tip.innerHTML = `<b>${esc(it.n)}</b><span>${esc(it.b || '')}${it.r ? ` · ★ ${it.r}` : ''}${it.s ? ` · đã bán ${it.s.toLocaleString('vi-VN')}` : ''}</span>` +
+    (d && d.t ? `<p>${esc(d.t)}</p>` : '') + (d && d.tp ? `<p><i>Thành phần:</i> ${esc(d.tp)}</p>` : '') +
+    (d ? '<small>Theo mô tả trên Droppii</small>' : (MOTA ? '' : '<small>Đang tải thông tin…</small>'));
   tip.classList.add('show');
   const w = tip.offsetWidth, h = tip.offsetHeight;
   tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
-  tip.style.top = Math.max(76, r.top - h - 6) + 'px';
+  // đủ chỗ thì hiện phía trên ảnh, không thì hiện phía dưới
+  tip.style.top = (r.top - h - 8 >= 76 ? r.top - h - 8 : Math.min(innerHeight - h - 8, r.bottom + 8)) + 'px';
 }
 let toastT;
 function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
