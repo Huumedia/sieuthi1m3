@@ -487,7 +487,9 @@ function buildShelves(cat) {
   const byG = GROUPS.map(() => []);
   // nhóm trong nhom_chi_anh_net (ban-hang.json): tạm chỉ bày món đã có ảnh nét
   const sharpOnly = new Set(GROUPS.map((g, gi) => (SALE.nhom_chi_anh_net || []).includes(g.name) ? gi : -1).filter(x => x >= 0));
-  const shown = i => !sharpOnly.has(ITEMS[i].g) || !!ITEMS[i].img;
+  // Droppii đôi khi có 2 dòng trùng link: chỉ bày dòng đầu (giữ nguyên thứ tự ITEMS vì giỏ hàng lưu theo số thứ tự)
+  const firstOf = new Map(); ITEMS.forEach((it, i) => { const j = firstOf.get(it.l); if (j === undefined || (!ITEMS[j].img && it.img)) firstOf.set(it.l, i); });
+  const shown = i => firstOf.get(ITEMS[i].l) === i && (!sharpOnly.has(ITEMS[i].g) || !!ITEMS[i].img);
   ITEMS.forEach((it, i) => { it.i = i; it.key = norm(it.n + ' ' + (it.b || '')); if (byG[it.g] && shown(i)) byG[it.g].push(i); });
   // món có ảnh nét lên đầu kệ, còn lại xếp theo số đã bán
   byG.forEach(a => a.sort((x, y) => (!!ITEMS[y].img - !!ITEMS[x].img) || (ITEMS[y].s || 0) - (ITEMS[x].s || 0)));
